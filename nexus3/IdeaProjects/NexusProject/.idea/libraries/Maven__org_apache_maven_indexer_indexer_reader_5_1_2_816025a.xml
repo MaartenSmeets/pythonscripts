@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.apache.maven.indexer:indexer-reader:5.1.2-816025a">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/maven/indexer/indexer-reader/5.1.2-816025a/indexer-reader-5.1.2-816025a.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/maven/indexer/indexer-reader/5.1.2-816025a/indexer-reader-5.1.2-816025a-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/maven/indexer/indexer-reader/5.1.2-816025a/indexer-reader-5.1.2-816025a-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

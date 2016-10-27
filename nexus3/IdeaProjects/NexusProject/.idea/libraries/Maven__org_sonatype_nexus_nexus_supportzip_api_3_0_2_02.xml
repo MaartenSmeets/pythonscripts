@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.sonatype.nexus:nexus-supportzip-api:3.0.2-02">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/sonatype/nexus/nexus-supportzip-api/3.0.2-02/nexus-supportzip-api-3.0.2-02.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/sonatype/nexus/nexus-supportzip-api/3.0.2-02/nexus-supportzip-api-3.0.2-02-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/sonatype/nexus/nexus-supportzip-api/3.0.2-02/nexus-supportzip-api-3.0.2-02-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

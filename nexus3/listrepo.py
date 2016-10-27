@@ -11,7 +11,7 @@ NEXUS_PORT = "8081"
 NEXUS_USERNAME = "admin"  
 NEXUS_PASSWORD = "admin123"  
 scriptname = 'listrepo'
-scriptlocation = '/home/oracle/IdeaProjects/NexusProject/src/main/groovy/testscript.groovy'
+scriptlocation = 'IdeaProjects/NexusProject/src/main/groovy/testscript.groovy'
 DEBUG='true'
 
 def log(severity,msg):
