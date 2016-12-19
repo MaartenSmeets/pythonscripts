@@ -44,7 +44,8 @@ baseurl = 'http://'+WEBLOGIC_HOST+':'+WEBLOGIC_PORT
 s.post(baseurl+'/dms/j_security_check', data=payload)
 
 response = s.get(baseurl+'/dms/index.html?format=xml&cache=false&prefetch=false&table=wls_webservice_operation&orderby=Name')
-tbml_et = get_et_from_string(response.text)
+nonamespacexml = re.sub(' xmlns="[^"]+"', '', response.text, count=1)
+tbml_et = get_et_from_string(nonamespacexml)
 rows = get_rows_from_tbml(tbml_et)
 result=[]
 
