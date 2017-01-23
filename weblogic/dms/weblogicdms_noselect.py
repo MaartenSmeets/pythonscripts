@@ -1,6 +1,8 @@
 from requests import session 
 import string  
 import xml.etree.ElementTree as ET
+import os 
+import re
 
 WEBLOGIC_HOST="localhost"
 WEBLOGIC_PORT="7101"  
