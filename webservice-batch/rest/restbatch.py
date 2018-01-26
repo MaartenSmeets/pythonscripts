@@ -31,6 +31,8 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_line={}
         for line in f:
             kvk_number=line.rstrip('\n')
+            while len(kvk_number) < 8:
+                kvk_number = "0"+kvk_number
             url =urlTemplate.substitute(kvk_number=kvk_number)
             future_to_line[executor.submit(fire_get_request,url,60)]=kvk_number
         for future in concurrent.futures.as_completed(future_to_line):
