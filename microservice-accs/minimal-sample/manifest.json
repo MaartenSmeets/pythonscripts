@@ -1,0 +1,8 @@
+{
+  "runtime": {
+    "majorVersion": "3.6.0"
+  },
+  "command": "sh ./launchPython.sh",
+  "release": {},
+  "notes": "Sample"
+}

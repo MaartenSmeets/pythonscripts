@@ -1,0 +1,7 @@
+{
+    "memory": "1G",
+    "instances": "1",
+    "environment": {
+        "PYTHONPATH":"${APP_HOME}/python/modules",
+    }
+}
