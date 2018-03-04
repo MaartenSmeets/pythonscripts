@@ -1,9 +1,8 @@
 #!/bin/sh
-
-# Install Python packages into python/modules folder
 pip --no-cache-dir install -r python/requirements.txt -t ${PYTHONPATH}
-
-#launch
-cd python
-export FLASK_APP=sample.py
+uname --help
+ls --help
+whereis sh
+pwd
+export FLASK_APP=${APP_HOME}/python/sample.py
 flask run --host=$HOST --port=$PORT
