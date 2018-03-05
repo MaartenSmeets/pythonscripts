@@ -2,7 +2,7 @@
   "runtime": {
     "majorVersion": "3.6.0"
   },
-  "command": "sh ./launchPython.sh",
+  "command": "sh ./launchPython.sh 0.0.0.0 $PORT",
   "release": {},
   "notes": "Sample"
 }
