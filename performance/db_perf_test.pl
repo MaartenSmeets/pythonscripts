@@ -42,7 +42,6 @@ def runtestcon():
         cur.execute('select to_char(systimestamp) from dual')
         res=cur.fetchone()
         con.close()
-        percentage=((x/lengthtest))*100
 
 @timeit
 def runtestindb(con):
