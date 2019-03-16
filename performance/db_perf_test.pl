@@ -3,17 +3,20 @@ import functools
 import time
 import urllib.request
 
-lengthtest = 1000
-lengthtestquery = 250000
-lengthtesturl = 10000
+lengthtest = 100
+lengthtestquery = 25000
+lengthtesturl = 50
 
 db_hostname = 'localhost'
 db_port = '1521'
-db_sid = 'XE'
+db_sid = 'ORCLPDB'
 db_username = 'TESTUSER'
-db_password = 'TESTUSER'
+db_password = 'Welcome01'
 
-dbstring = db_username + '/' + db_password + '@' + db_hostname + ':' + db_port + '/' + db_sid
+dbstring = cx_Oracle.makedsn(db_hostname, db_port, service_name=db_sid)
+
+#dbstring = db_username + '/' + db_password + '@' + db_hostname + ':' + db_port + '/' + db_sid
+
 
 def timeit(func):
     @functools.wraps(func)
@@ -28,7 +31,7 @@ def timeit(func):
 @timeit
 def runtestcon():
     for x in range(lengthtest):
-        con = cx_Oracle.connect(dbstring)
+        con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
         cur = con.cursor()
         cur.execute('select to_char(systimestamp) from dual')
         res=cur.fetchone()
@@ -52,14 +55,11 @@ def runtestindb(con):
 def runtest_prep(cur):
     statement = """
        BEGIN
-
         execute immediate('CREATE SEQUENCE test_seq START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE');
-
         EXECUTE IMMEDIATE ('CREATE TABLE test_tab(
         test_id NUMBER,
         kolom VARCHAR2(50) NOT NULL,
         PRIMARY KEY(test_id))');
-
         execute immediate('CREATE TRIGGER test_trg
         BEFORE INSERT OR UPDATE ON test_tab
             FOR EACH ROW
@@ -78,21 +78,18 @@ def runtest_clean(cur):
         when others then
         null;
         end;
-
         begin
         execute immediate ('drop sequence test_seq');
         exception
         when others then
         null;
         end;
-
         begin
         execute immediate ('drop table test_tab');
         exception
         when others then
         null;
         end;
-
         END;"""
     cur.execute(statement)
 
@@ -175,9 +172,9 @@ def getdadporturl(cur):
     statement="""
         create or replace procedure tmp_proc(p_path out varchar2,p_port out varchar2) as
             l_paths  DBMS_EPG.varchar2_table;
-            l_dadname dba_epg_dad_authorization.dad_name%TYPE;
+            l_dadname user_epg_dad_authorization.dad_name%TYPE;
         BEGIN
-            select dad_name into l_dadname from dba_epg_dad_authorization where rownum=1;
+            select dad_name into l_dadname from user_epg_dad_authorization where rownum=1;
             SELECT to_char(DBMS_XDB.GETHTTPPORT) into p_port FROM DUAL;
             DBMS_EPG.get_all_dad_mappings (
                 dad_name => l_dadname,
@@ -211,20 +208,20 @@ print('Testing create connection, create cursor, query, close connection')
 runtestcon()
 
 print('Testing create cursor, query,')
-con = cx_Oracle.connect(dbstring)
+con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
 runtestindb(con)
 con.close()
 
 print('Testing creating and removing objects');
 
-con = cx_Oracle.connect(dbstring)
+con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
 cur = con.cursor()
 runtest_clean(cur)
 runtestcreateremoveobjects(cur)
 con.close()
 
 print('Inserting data, commit, deleting data, commit');
-con = cx_Oracle.connect(dbstring)
+con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
 cur = con.cursor()
 runtest_clean(cur)
 runtest_prep(cur)
@@ -233,7 +230,7 @@ runtest_clean(cur)
 con.close()
 
 print('Inserting single row, commit, delete single row, commit');
-con = cx_Oracle.connect(dbstring)
+con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
 cur = con.cursor()
 runtest_clean(cur)
 runtest_prep(cur)
@@ -242,7 +239,7 @@ runtest_clean(cur)
 con.close()
 
 print('Testing DAD EPG');
-con = cx_Oracle.connect(dbstring)
+con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
 cur = con.cursor()
 createpublicproc(cur)
 dad_port, endpoint = getdadporturl(cur)
