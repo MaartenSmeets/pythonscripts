@@ -6,6 +6,10 @@ import urllib.request
 lengthtest = 100
 lengthtestquery = 25000
 lengthtesturl = 50
+executiontimes = 3
+
+do_primer='true'
+print_func_time = 'true'
 
 db_hostname = 'localhost'
 db_port = '1521'
@@ -15,17 +19,19 @@ db_password = 'Welcome01'
 
 dbstring = cx_Oracle.makedsn(db_hostname, db_port, service_name=db_sid)
 
+
 #dbstring = db_username + '/' + db_password + '@' + db_hostname + ':' + db_port + '/' + db_sid
 
 
 def timeit(func):
+    global print_func_time
     @functools.wraps(func)
     def newfunc(*args, **kwargs):
         startTime = time.time()
         func(*args, **kwargs)
         elapsedTime = time.time() - startTime
-        print('function [{}] finished in {} ms'.format(
-            func.__name__, int(elapsedTime * 1000)))
+        if print_func_time == 'true':
+            print('function [{}] finished in {} ms'.format(func.__name__, int(elapsedTime * 1000)))
     return newfunc
 
 @timeit
@@ -37,9 +43,6 @@ def runtestcon():
         res=cur.fetchone()
         con.close()
         percentage=((x/lengthtest))*100
-        if percentage>0 and percentage % 10==0:
-            print (str(int(percentage))+' ',end='')
-    print ('100')
 
 @timeit
 def runtestindb(con):
@@ -47,10 +50,6 @@ def runtestindb(con):
         cur = con.cursor()
         cur.execute('select to_char(systimestamp) from dual')
         res=cur.fetchone()
-        percentage=((x/lengthtestquery))*100
-        if percentage>0 and percentage % 10==0:
-            print (str(int(percentage))+' ', end='')
-    print ('100')
 
 def runtest_prep(cur):
     statement = """
@@ -99,9 +98,6 @@ def runtestcreateremoveobjects(cur):
         runtest_prep(cur)
         runtest_clean(cur)
         percentage=((x/lengthtest))*100
-        if percentage>0 and percentage % 10==0:
-            print (str(int(percentage))+' ', end='')
-    print ('100')
 
 @timeit
 def runtestinsdel(cur):
@@ -117,9 +113,6 @@ def runtestinsdel(cur):
        END;"""
     for x in range(lengthtest):
         cur.execute(statement)
-        percentage=((x/lengthtest))*100
-        if percentage>0 and percentage % 10==0:
-            print (str(int(percentage))+' ', end='')
 
 @timeit
 def runtestinsdelcommit(cur):
@@ -137,9 +130,6 @@ def runtestinsdelcommit(cur):
        END;"""
     for x in range(lengthtest):
         cur.execute(statement)
-        percentage=((x/lengthtest))*100
-        if percentage>0 and percentage % 10==0:
-            print (str(int(percentage))+' ', end='')
 
 def createpublicproc(cur):
     statement = """
@@ -196,20 +186,42 @@ def getdadporturl(cur):
     cur.execute(statement)
     return l_port.getvalue(), l_path.getvalue()
 
+def testexecutornopars(func, executiontimes):
+    global print_func_time, do_primer
+    if do_primer != 'false':
+        print_func_time = 'false'
+        func()
+        print_func_time = 'true'
+    startTime = time.time()
+    for x in range(executiontimes):
+        func()
+    elapsedTime = time.time() - startTime
+    print('Average {} ms'.format(int((elapsedTime * 1000) / executiontimes)))
+
+def testexecutorsinglepar(func, executiontimes,par):
+    global print_func_time, do_primer
+    if do_primer != 'false':
+        print_func_time = 'false'
+        func(par)
+        print_func_time = 'true'
+    startTime = time.time()
+    for x in range(executiontimes):
+        func(par)
+    elapsedTime = time.time() - startTime
+    print('Average {} ms'.format(int((elapsedTime * 1000) / executiontimes)))
+
 @timeit
 def urltest(url_to_call):
     for x in range(lengthtesturl):
         contents = urllib.request.urlopen(url_to_call).read()
-        percentage = ((x / lengthtesturl)) * 100
-        if percentage > 0 and percentage % 10 == 0:
-            print(str(int(percentage)) + ' ', end='')
 
 print('Testing create connection, create cursor, query, close connection')
-runtestcon()
+
+testexecutornopars(runtestcon, executiontimes)
 
 print('Testing create cursor, query,')
 con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
-runtestindb(con)
+testexecutorsinglepar(runtestindb, executiontimes, con)
 con.close()
 
 print('Testing creating and removing objects');
@@ -217,7 +229,7 @@ print('Testing creating and removing objects');
 con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
 cur = con.cursor()
 runtest_clean(cur)
-runtestcreateremoveobjects(cur)
+testexecutorsinglepar(runtestcreateremoveobjects, executiontimes, cur)
 con.close()
 
 print('Inserting data, commit, deleting data, commit');
@@ -225,7 +237,7 @@ con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
 cur = con.cursor()
 runtest_clean(cur)
 runtest_prep(cur)
-runtestinsdel(cur)
+testexecutorsinglepar(runtestinsdel, executiontimes, cur)
 runtest_clean(cur)
 con.close()
 
@@ -234,7 +246,7 @@ con = cx_Oracle.connect(user=db_username, password=db_password, dsn=dbstring)
 cur = con.cursor()
 runtest_clean(cur)
 runtest_prep(cur)
-runtestinsdelcommit(cur)
+testexecutorsinglepar(runtestinsdelcommit, executiontimes, cur)
 runtest_clean(cur)
 con.close()
 
@@ -244,7 +256,6 @@ cur = con.cursor()
 createpublicproc(cur)
 dad_port, endpoint = getdadporturl(cur)
 url_to_call = "http://"+db_hostname+':'+dad_port+endpoint+'/'+db_username+'.TEST_PROC'
-print ("Using: "+url_to_call)
-urltest(url_to_call)
+testexecutorsinglepar(urltest, executiontimes, url_to_call)
 removepublicproc(cur)
 con.close()
